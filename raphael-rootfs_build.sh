@@ -42,7 +42,7 @@ distro_variant=$(echo "$1" | cut -d'-' -f2)
 if [ "$distro_type" = "debian" ]; then
     distro_version="trixie"  # Debian 13 (trixie)
 elif [ "$distro_type" = "ubuntu" ]; then
-    distro_version="noble"   # Ubuntu 24.04 (noble)
+    distro_version="jammy"   # Ubuntu 24.04 (noble)
 else
     echo "错误: 不支持的发行版类型: $distro_type"
     exit 1
