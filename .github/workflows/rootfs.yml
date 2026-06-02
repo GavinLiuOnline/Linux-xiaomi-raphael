@@ -199,7 +199,7 @@ jobs:
 
         # 获取文件大小（KB）
         FILE_SIZE_KB=$(du -k "$OUTPUT_FILE" | cut -f1)
-        FILE_SIZE_GB=$((FILE_SIZE_KB / 1024 / 1024))
+        FILE_SIZE_GB=$(echo "scale=3; $FILE_SIZE_KB / 1024 / 1024" | bc)
         echo "file_size_gb=$FILE_SIZE_GB" >> $GITHUB_OUTPUT
 
         echo "文件大小: ${FILE_SIZE_KB} KB (${FILE_SIZE_GB} GB)"
