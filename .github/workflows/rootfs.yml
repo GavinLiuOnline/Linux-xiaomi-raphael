@@ -241,7 +241,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: "🚀 上传Boot镜像到Release"
-      if: ${{ fromJSON(steps.build_rootfs.outputs.boot_img_exists)}}
+      if: ${{ steps.build_rootfs.outputs.boot_img_exists == 'true'}}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
