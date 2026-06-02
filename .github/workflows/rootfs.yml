@@ -111,7 +111,7 @@ jobs:
       APT_CACHE_DIR: /opt/apt-cache
       RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
     permissions:
-      contents: read
+      contents: write
       packages: read
     strategy:
       matrix:
@@ -208,21 +208,21 @@ jobs:
           echo "✅ 找到Boot镜像: xiaomi-k20pro-boot.img"
           echo "boot_img_exists=true" >> $GITHUB_OUTPUT
         fi
-        exit 0
+        echo skip_release ${{github.event.inputs.skip_release}}
       timeout-minutes: 90
 
-    # - name: "📤 上传大文件到Artifact"
-    #   if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb >= 2 }}
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ${{ steps.build_rootfs.outputs.final_filename }}
-    #     path: ${{ steps.build_rootfs.outputs.file_path }}
-    #     retention-days: 14
-    #     if-no-files-found: error
-    #     compression-level: 0
+    - name: "📤 上传大文件到Artifact"
+      if: ${{ !github.event.inputs.skip_release && fromJSON(steps.build_rootfs.outputs.file_size_gb) >= 2 }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.build_rootfs.outputs.final_filename }}
+        path: ${{ steps.build_rootfs.outputs.file_path }}
+        retention-days: 14
+        if-no-files-found: error
+        compression-level: 0
 
     - name: "🚀 直接上传小文件到Release"
-      # if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb < 2 }}
+      if: ${{ !github.event.inputs.skip_release && fromJSON(steps.build_rootfs.outputs.file_size_gb) < 2 }}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
@@ -248,9 +248,9 @@ jobs:
     runs-on: ubuntu-24.04-arm
     needs: [prepare-release, build-rootfs]
     permissions:
-      contents: write
-    # if: ${{ !github.event.inputs.skip_release && needs.build-rootfs.result == 'success' }}
-    if: ${{needs.build-rootfs.result == 'success' }}
+      contents: read
+      packages: read
+    if: ${{ !github.event.inputs.skip_release && needs.build-rootfs.result == 'success' }}
     steps:
     - name: "📝 更新Release信息"
       run: |
