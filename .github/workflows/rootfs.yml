@@ -199,8 +199,16 @@ jobs:
 
         # 获取文件大小（KB）
         FILE_SIZE_KB=$(du -k "$OUTPUT_FILE" | cut -f1)
-        FILE_SIZE_GB=$(echo "scale=3; $FILE_SIZE_KB / 1024 / 1024" | bc)
+        FILE_SIZE_GB=$(printf "%.3f" $(echo "scale=3; $FILE_SIZE_KB / 1048576" | bc))
         echo "file_size_gb=$FILE_SIZE_GB" >> $GITHUB_OUTPUT
+        # 判断是否大于等于 2GB（使用 bc 比较）
+        if (( $(echo "$FILE_SIZE_GB >= 2" | bc -l) )); then
+            echo "upload_target=artifact" >> $GITHUB_OUTPUT
+            echo use artifact
+        else
+            echo "upload_target=release" >> $GITHUB_OUTPUT
+            echo use release
+        fi
 
         echo "文件大小: ${FILE_SIZE_KB} KB (${FILE_SIZE_GB} GB)"
         # 检查Boot镜像（所有Server变体）
@@ -212,7 +220,7 @@ jobs:
       timeout-minutes: 90
 
     - name: "📤 上传大文件到Artifact"
-      if: ${{ !github.event.inputs.skip_release && fromJSON(steps.build_rootfs.outputs.file_size_gb) >= 2 }}
+      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.upload_target == 'artifact' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build_rootfs.outputs.final_filename }}
@@ -222,7 +230,7 @@ jobs:
         compression-level: 0
 
     - name: "🚀 直接上传小文件到Release"
-      if: ${{ !github.event.inputs.skip_release && fromJSON(steps.build_rootfs.outputs.file_size_gb) < 2 }}
+      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.upload_target == 'release' }}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
