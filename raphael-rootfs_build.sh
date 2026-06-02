@@ -556,3 +556,4 @@ else
 fi
 
 echo "🎉 $distro_type-$distro_variant IMG镜像构建完成！"
+exit 0
