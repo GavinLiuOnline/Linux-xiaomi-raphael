@@ -216,11 +216,11 @@ jobs:
           echo "✅ 找到Boot镜像: xiaomi-k20pro-boot.img"
           echo "boot_img_exists=true" >> $GITHUB_OUTPUT
         fi
-        echo skip_release ${{github.event.inputs.skip_release}}
+        echo skip_release ${{fromJSON(github.event.inputs.skip_release)}}
       timeout-minutes: 90
 
     - name: "📤 上传大文件到Artifact"
-      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.upload_target == 'artifact' }}
+      if: ${{ !fromJSON(github.event.inputs.skip_release) && steps.build_rootfs.outputs.upload_target == 'artifact' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build_rootfs.outputs.final_filename }}
@@ -230,7 +230,7 @@ jobs:
         compression-level: 0
 
     - name: "🚀 直接上传小文件到Release"
-      if: ${{ !github.event.inputs.skip_release}}
+      if: ${{ !fromJSON(github.event.inputs.skip_release)}}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
@@ -241,7 +241,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: "🚀 上传Boot镜像到Release"
-      if: ${{ steps.build_rootfs.outputs.boot_img_exists == 'true' }}
+      if: ${{ fromJSON(steps.build_rootfs.outputs.boot_img_exists)}}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
