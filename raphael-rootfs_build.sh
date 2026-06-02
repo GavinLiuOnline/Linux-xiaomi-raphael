@@ -535,6 +535,8 @@ rm -rf rootdir
 echo "✅ 虚拟文件系统卸载和目录清理完成"
 
 echo "🔧 调整文件系统UUID..."
+# 强制检查并修复文件系统
+e2fsck -f -y "${ROOTFS_IMG}"
 tune2fs -U $FILESYSTEM_UUID "${ROOTFS_IMG}"
 echo "✅ 文件系统UUID调整完成"
 
