@@ -211,18 +211,18 @@ jobs:
         exit 0
       timeout-minutes: 90
 
-    - name: "📤 上传大文件到Artifact"
-      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb >= 2 }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ steps.build_rootfs.outputs.final_filename }}
-        path: ${{ steps.build_rootfs.outputs.file_path }}
-        retention-days: 14
-        if-no-files-found: error
-        compression-level: 0
+    # - name: "📤 上传大文件到Artifact"
+    #   if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb >= 2 }}
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: ${{ steps.build_rootfs.outputs.final_filename }}
+    #     path: ${{ steps.build_rootfs.outputs.file_path }}
+    #     retention-days: 14
+    #     if-no-files-found: error
+    #     compression-level: 0
 
     - name: "🚀 直接上传小文件到Release"
-      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb < 2 }}
+      # if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.file_size_gb < 2 }}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
@@ -233,7 +233,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: "🚀 上传Boot镜像到Release"
-      if: ${{ !github.event.inputs.skip_release && steps.build_rootfs.outputs.boot_img_exists == 'true' }}
+      if: ${{ steps.build_rootfs.outputs.boot_img_exists == 'true' }}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}
@@ -249,7 +249,8 @@ jobs:
     needs: [prepare-release, build-rootfs]
     permissions:
       contents: write
-    if: ${{ !github.event.inputs.skip_release && needs.build-rootfs.result == 'success' }}
+    # if: ${{ !github.event.inputs.skip_release && needs.build-rootfs.result == 'success' }}
+    if: ${{needs.build-rootfs.result == 'success' }}
     steps:
     - name: "📝 更新Release信息"
       run: |
