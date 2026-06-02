@@ -421,11 +421,11 @@ fi
     
     # 配置用户和自动登录
     echo "👤 配置用户账户和自动登录..."
-    chroot rootdir useradd -m -s /bin/bash luser
-    echo "luser:luser" | chroot rootdir chpasswd
-    echo "luser ALL=(ALL) NOPASSWD: ALL" >> rootdir/etc/sudoers
-    chroot rootdir usermod -aG sudo luser
-    echo "✅ 用户 luser 创建完成"
+    chroot rootdir useradd -m -s /bin/bash ubuntu
+    echo "ubuntu:ubuntu" | chroot rootdir chpasswd
+    echo "ubuntu ALL=(ALL) NOPASSWD: ALL" >> rootdir/etc/sudoers
+    chroot rootdir usermod -aG sudo ubuntu
+    echo "✅ 用户 ubuntu 创建完成"
     
     # 配置显示管理器自动登录
     echo "🔧 配置显示管理器自动登录..."
@@ -434,7 +434,7 @@ fi
     if [ -d rootdir/etc/gdm3 ]; then
         cat > rootdir/etc/gdm3/daemon.conf << DAEMON
 [daemon]
-AutomaticLogin=luser
+AutomaticLogin=ubuntu
 AutomaticLoginEnable=True
 DAEMON
         chroot rootdir systemctl enable gdm3 || echo "⚠️  GDM3 启用失败"
@@ -443,7 +443,7 @@ DAEMON
         chroot rootdir mkdir -p /etc/lightdm/lightdm.conf.d
         cat > rootdir/etc/lightdm/lightdm.conf.d/50-autologin.conf << CONF
 [Seat:*]
-autologin-user=luser
+autologin-user=ubuntu
 autologin-user-timeout=0
 user-session=${DESKTOP}
 greeter-session=lightdm-gtk-greeter
