@@ -195,7 +195,7 @@ base_packages=(
     # 系统核心
     systemd udev dbus bash-completion 
     # 网络基础（强制DHCP+WiFi）
-    resolvectl wpasupplicant iw iproute2 sudo
+    wpasupplicant iw iproute2 sudo
     # SSH依赖
     openssh-server openssh-client chrony 
     # 基础工具
